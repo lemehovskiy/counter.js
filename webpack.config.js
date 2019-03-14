@@ -1,8 +1,8 @@
 module.exports = {
     watch: true,
-    entry: './src/a.es6',
+    entry: './src/counter.es6',
     output: {
-        filename: 'build/a.js',
+        filename: 'build/counter.js',
         libraryTarget: "umd"
     },
     module: {

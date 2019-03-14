@@ -9,7 +9,7 @@
 
 (function ($) {
 
-    class A {
+    class Counter {
 
         constructor(element, options) {
 
@@ -34,11 +34,13 @@
 
         init(){
             let self = this;
+
+            console.log('asd');
         }
     }
 
 
-    $.fn.a = function() {
+    $.fn.counter = function() {
         let $this = this,
             opt = arguments[0],
             args = Array.prototype.slice.call(arguments, 1),
@@ -47,9 +49,9 @@
             ret;
         for (i = 0; i < length; i++) {
             if (typeof opt == 'object' || typeof opt == 'undefined')
-                $this[i].a = new A($this[i], opt);
+                $this[i].a = new Counter($this[i], opt);
         else
-            ret = $this[i].a[opt].apply($this[i].a, args);
+            ret = $this[i].counter[opt].apply($this[i].counter, args);
             if (typeof ret != 'undefined') return ret;
         }
         return $this;
