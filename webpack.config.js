@@ -5,6 +5,7 @@ module.exports = {
         filename: 'build/counter.js',
         libraryTarget: "umd"
     },
+
     module: {
         rules: [
             {
@@ -13,7 +14,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['env']
+                        presets: [ 'es2015', 'react', 'stage-2' ]
                     }
                 }
             }

@@ -7071,11 +7071,33 @@ __webpack_require__(67);
 
 __webpack_require__(68);
 
-__webpack_require__(113);
+__webpack_require__(108);
 
 $(document).ready(function () {
 
-    $('.title').counter();
+    var tempObj = {
+        value: 25
+    };
+
+    $('.title').counter({
+        target: tempObj,
+        value: 100,
+        duration: 10,
+        onUpdate: function onUpdate() {
+            $('.title').text(tempObj.value.toFixed(2));
+        }
+    });
+
+    setTimeout(function () {
+        $('.title').counter({
+            target: tempObj,
+            value: 40,
+            duration: 10,
+            onUpdate: function onUpdate() {
+                $('.title').text(tempObj.value.toFixed(2));
+            }
+        });
+    }, 2000);
 });
 
 /***/ }),
@@ -12030,12 +12052,7 @@ if ( !noGlobal ) {
 
 
 /***/ }),
-/* 108 */,
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */,
-/* 113 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -12129,6 +12146,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -12142,17 +12161,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             //extend by function call
             self.settings = $.extend(true, {
-
-                test_property: false
-
+                target: {},
+                duration: 1
             }, options);
 
             self.$element = $(element);
 
             //extend by data options
-            self.data_options = self.$element.data('a');
+            self.data_options = self.$element.data('counter');
             self.settings = $.extend(true, self.settings, self.data_options);
 
+            this.state = {
+                isCounting: false,
+                startTime: 0,
+                now: 0
+            };
             self.init();
         }
 
@@ -12161,7 +12184,51 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function init() {
                 var self = this;
 
-                console.log('asd');
+                self.saveInitTarget();
+                self.animate();
+            }
+        }, {
+            key: 'saveInitTarget',
+            value: function saveInitTarget() {
+                this.state.initTarget = _extends({}, this.settings.target);
+            }
+        }, {
+            key: 'setStartTime',
+            value: function setStartTime() {
+                this.state.startTime = performance.now();
+            }
+        }, {
+            key: 'onUpdate',
+            value: function onUpdate(progress) {
+                console.log(this.state.initTarget.value + (this.settings.value - this.state.initTarget.value) / 100 * progress);
+
+                this.settings.onUpdate.call(this, progress);
+            }
+        }, {
+            key: 'animate',
+            value: function animate() {
+                var self = this;
+                var duration = self.settings.duration * 1000;
+
+                self.setStartTime();
+
+                requestAnimationFrame(function tick(time) {
+                    self.state.now = time;
+
+                    var timePassed = self.state.now - self.state.startTime;
+
+                    if (timePassed > duration) {
+                        timePassed = duration;
+                        cancelAnimationFrame(self.raf);
+                    }
+
+                    var progressInPercent = timePassed / duration * 100;
+                    self.onUpdate(progressInPercent);
+
+                    if (timePassed < duration) {
+                        self.raf = requestAnimationFrame(tick.bind(this));
+                    }
+                });
             }
         }]);
 
