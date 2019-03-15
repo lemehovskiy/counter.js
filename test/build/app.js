@@ -7096,36 +7096,31 @@ $(document).ready(function () {
         }
     });
 
-    // setTimeout(() => {
-    //     Counter.to(tempObj, 2,
-    //         {
-    //             // value: 100,
-    //             it: 30
-    //         },
-    //         {
-    //             onUpdate: (progress) => {
-    //                 // console.log(progress);
-    //                 // console.log('second' + tempObj.it);
-    //                 $('.title').text(tempObj.it.toFixed(2));
-    //             }
-    //         });
-    // }, 1000)
-    //
-    //
-    // setTimeout(() => {
-    //     Counter.to(tempObj, 3,
-    //         {
-    //             // value: 100,
-    //             it: 10
-    //         },
-    //         {
-    //             onUpdate: (progress) => {
-    //                 // console.log(progress);
-    //                 // console.log('third' + tempObj.it);
-    //                 $('.title').text(tempObj.it.toFixed(2));
-    //             }
-    //         });
-    // }, 6000)
+    setTimeout(function () {
+        _counter2.default.to(tempObj, 2, {
+            // value: 100,
+            it: 30
+        }, {
+            onUpdate: function onUpdate(progress) {
+                // console.log(progress);
+                // console.log('second' + tempObj.it);
+                $('.title').text(tempObj.it.toFixed(2));
+            }
+        });
+    }, 1000);
+
+    setTimeout(function () {
+        _counter2.default.to(tempObj, 3, {
+            // value: 100,
+            it: 10
+        }, {
+            onUpdate: function onUpdate(progress) {
+                // console.log(progress);
+                // console.log('third' + tempObj.it);
+                $('.title').text(tempObj.it.toFixed(2));
+            }
+        });
+    }, 6000);
 });
 
 /***/ }),
@@ -7280,7 +7275,6 @@ var Counter = function () {
     }, {
         key: 'startEngine',
         value: function startEngine() {
-            console.log('startEngine');
             Counter.engineInProgress = true;
             Counter.ref = requestAnimationFrame(function tick(time) {
 
@@ -7294,13 +7288,12 @@ var Counter = function () {
 
                         var timeFraction = timePassed / durationMS;
 
-                        if (timeFraction > 1) timeFraction = 1;
+                        if (timeFraction > 1) {
+                            Counter.deleteCounter(id);
+                            timeFraction = 1;
+                        }
 
                         var progress = counter.vars.easing === 'linear' ? timeFraction : _easing.easings[counter.vars.easing](timeFraction);
-
-                        if (progress > 1) {
-                            Counter.deleteCounter(id);
-                        }
 
                         (0, _helpers.onUpdate)(counter.initTarget, counter.target, progress, counter.vars, counter.callbacks);
                     });

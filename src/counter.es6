@@ -57,7 +57,6 @@ class Counter {
     }
 
     static startEngine() {
-        console.log('startEngine');
         Counter.engineInProgress = true;
         Counter.ref = requestAnimationFrame(function tick(time) {
 
@@ -72,13 +71,12 @@ class Counter {
 
                     let timeFraction = timePassed / durationMS;
 
-                    if (timeFraction > 1) timeFraction = 1;
+                    if (timeFraction > 1) {
+                        Counter.deleteCounter(id)
+                        timeFraction = 1;
+                    }
 
                     let progress = counter.vars.easing === 'linear' ? timeFraction : easings[counter.vars.easing](timeFraction)
-
-                    if (progress > 1) {
-                        Counter.deleteCounter(id)
-                    }
 
                     onUpdate(counter.initTarget, counter.target, progress, counter.vars, counter.callbacks);
                 })

@@ -146,7 +146,6 @@ var Counter = function () {
     }, {
         key: 'startEngine',
         value: function startEngine() {
-            console.log('startEngine');
             Counter.engineInProgress = true;
             Counter.ref = requestAnimationFrame(function tick(time) {
 
@@ -160,13 +159,12 @@ var Counter = function () {
 
                         var timeFraction = timePassed / durationMS;
 
-                        if (timeFraction > 1) timeFraction = 1;
+                        if (timeFraction > 1) {
+                            Counter.deleteCounter(id);
+                            timeFraction = 1;
+                        }
 
                         var progress = counter.vars.easing === 'linear' ? timeFraction : _easing.easings[counter.vars.easing](timeFraction);
-
-                        if (progress > 1) {
-                            Counter.deleteCounter(id);
-                        }
 
                         (0, _helpers.onUpdate)(counter.initTarget, counter.target, progress, counter.vars, counter.callbacks);
                     });
