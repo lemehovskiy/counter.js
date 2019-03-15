@@ -5,73 +5,120 @@
  Repo: https://github.com/lemehovskiy/a
  */
 
+import {onUpdate} from './helpers.es6';
 
 class Counter {
-    constructor(target, duration, vars, callbacks) {
-        let self = this;
+    static targetID = 1;
+    static ref = undefined;
+    static countersByHash = {};
+    static countersById = {};
+    static engineInProgress = false;
 
-        self.state = {
-            isCounting: false,
-            startTime: 0,
-            now: 0
+    static addCounter(id, target, duration, vars, callbacks) {
+        Counter.countersByHash = {
+            ...Counter.countersByHash,
+            [id]: {
+                id: id,
+                target: target,
+                duration: duration,
+                vars: vars,
+                callbacks: callbacks,
+                initTarget: {...target},
+                startTime: performance.now()
+            }
         }
-        self.init(target, duration, vars, callbacks);
+        Counter.countersById = [...Counter.countersByHash, id]
     }
 
-    static to(target, duration, vars, callbacks){
+    static updateCounter(id, target, duration, vars, callbacks) {
+        Counter.countersByHash = {
+            ...Counter.countersByHash,
+            [id]: {
+                ...Counter.countersByHash[id],
+                duration: duration,
+                vars: vars,
+                callbacks: callbacks,
+                initTarget: {...target},
+                startTime: performance.now()
+            }
+        }
+    }
+
+    static deleteCounter(id) {
+        Counter.countersById = Counter.countersById.filter(item => {
+            return item !== id
+        });
+
+        delete Counter.countersByHash[id];
+    }
+
+
+    static registerTarget(target) {
+        target._counterID = Counter.targetID++;
+    }
+
+    static startEngine() {
+        console.log('startEngine');
+        Counter.engineInProgress = true;
+        Counter.ref = requestAnimationFrame(function tick(time) {
+
+            if (Counter.countersById.length === 0) {
+                Counter.stopEngine();
+            }
+            else {
+
+                Counter.countersById.forEach((id) => {
+                    const counter = Counter.countersByHash[id];
+                    const durationMS = counter.duration * 1000;
+
+                    let timePassed = time - counter.startTime;
+
+                    if (timePassed > durationMS) {
+                        timePassed = durationMS;
+                        Counter.deleteCounter(id)
+                    }
+
+                    const progressInPercent = (timePassed / durationMS) * 100;
+                    onUpdate(counter.initTarget, counter.target, progressInPercent, counter.vars, counter.callbacks);
+                })
+
+                Counter.ref = requestAnimationFrame(tick.bind(this));
+            }
+        })
+    }
+
+    static stopEngine() {
+        Counter.engineInProgress = false;
+        cancelAnimationFrame(Counter.ref)
+    }
+
+    static to(target, duration, vars, callbacks) {
         return new Counter(target, duration, vars, callbacks);
     }
 
-    init(target, duration, vars, callbacks) {
+    constructor(target, duration, vars, callbacks) {
         let self = this;
 
-        self.saveInitTarget(target);
-        self.animate(target, duration, vars, callbacks);
+        self.init(target, duration, vars, callbacks);
     }
 
-    saveInitTarget(target) {
-        this.state.initTarget = {...target};
-    }
-
-    setStartTime() {
-        this.state.startTime = performance.now();
-    }
-
-    onUpdate(target, progress, vars, callbacks) {
-        for(var propertyName in vars) {
-            const fromValue = this.state.initTarget[propertyName];
-            const toValue = vars[propertyName];
-
-            target[propertyName] = fromValue + (toValue - fromValue) / 100 * progress;
+    init(target, duration, vars, callbacks) {
+        if (target.hasOwnProperty('_counterID')) {
+            if (Counter.countersByHash[target.id]) {
+                Counter.updateCounter(target._counterID, target, duration, vars, callbacks);
+            }
+            else {
+                Counter.addCounter(target._counterID, target, duration, vars, callbacks);
+            }
+        }
+        else {
+            Counter.registerTarget(target);
+            Counter.addCounter(target._counterID, target, duration, vars, callbacks);
         }
 
-        callbacks.onUpdate.call(this, progress);
-    }
-
-    animate(target, duration, vars, callbacks) {
-        let self = this;
-        const durationMS = duration * 1000;
-        
-        self.setStartTime();
-
-        requestAnimationFrame(function tick(time) {
-
-            self.state.now = time;
-
-            let timePassed = self.state.now - self.state.startTime;
-
-            if (timePassed > durationMS) {
-                timePassed = durationMS;
-                cancelAnimationFrame(self.raf)
-            }
-
-            const progressInPercent = (timePassed / durationMS) * 100;
-            self.onUpdate(target, progressInPercent, vars, callbacks);
-
-            if (timePassed < durationMS) {
-                self.raf = requestAnimationFrame(tick.bind(this));
-            }
-        })
+        if (!Counter.engineInProgress) {
+            Counter.startEngine(Counter.counters);
+        }
     }
 }
 

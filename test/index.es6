@@ -4,6 +4,8 @@ require("jquery");
 
 import Counter from "./../build/counter"
 
+require('./TweenMax');
+
 
 $(document).ready(function () {
 
@@ -12,18 +14,6 @@ $(document).ready(function () {
         it: 100
     }
 
-    // class StaticMethodCall {
-    //     static staticMethod() {
-    //         console.log('Вызван статический метод')
-    //     }
-    // }
-    //
-    //
-    // StaticMethodCall.staticMethod();
-
-    // console.log(Counter);
-
-    // Counter.to();
 
     Counter.to(tempObj, 3,
         {
@@ -33,28 +23,38 @@ $(document).ready(function () {
         {
             onUpdate: (progress) => {
                 // console.log(progress);
-                $('.title').text(tempObj.it.toFixed(2));
+                    console.log('first' + tempObj.it);
             }
         });
 
-    // $('.title').counter({
-    //     target: tempObj,
-    //     value: 100,
-    //     duration: 10,
-    //     onUpdate: () => {
-    //         $('.title').text(tempObj.value.toFixed(2));
-    //     }
-    // });
+
+    setTimeout(() => {
+        Counter.to(tempObj, 2,
+            {
+                // value: 100,
+                it: 30
+            },
+            {
+                onUpdate: (progress) => {
+                    // console.log(progress);
+                    console.log('second' + tempObj.it);
+                }
+            });
+    }, 1000)
 
 
-    // setTimeout(() => {
-    //     $('.title').counter({
-    //         target: tempObj,
-    //         value: 40,
-    //         duration: 10,
-    //         onUpdate: () => {
-    //             $('.title').text(tempObj.value.toFixed(2));
-    //         }
-    //     });
-    // }, 2000)
+    setTimeout(() => {
+        Counter.to(tempObj, 3,
+            {
+                // value: 100,
+                it: 10
+            },
+            {
+                onUpdate: (progress) => {
+                    // console.log(progress);
+                    console.log('third' + tempObj.it);
+                    // $('.title').text(tempObj.it.toFixed(2));
+                }
+            });
+    }, 6000)
 });
