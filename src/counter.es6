@@ -5,96 +5,74 @@
  Repo: https://github.com/lemehovskiy/a
  */
 
-'use strict';
 
-(function ($) {
+class Counter {
+    constructor(target, duration, vars, callbacks) {
+        let self = this;
 
-    class Counter {
-        constructor(element, options) {
-            let self = this;
-
-            //extend by function call
-            self.settings = $.extend(true, {
-                target: {},
-                duration: 1
-            }, options);
-
-            self.$element = $(element);
-
-            //extend by data options
-            self.data_options = self.$element.data('counter');
-            self.settings = $.extend(true, self.settings, self.data_options);
-
-            this.state = {
-                isCounting: false,
-                startTime: 0,
-                now: 0
-            }
-            self.init();
+        self.state = {
+            isCounting: false,
+            startTime: 0,
+            now: 0
         }
-
-        init() {
-            let self = this;
-
-            self.saveInitTarget();
-            self.animate();
-        }
-
-        saveInitTarget(){
-            this.state.initTarget = {...this.settings.target};
-        }
-
-        setStartTime() {
-            this.state.startTime = performance.now();
-        }
-
-        onUpdate(progress) {
-            console.log(this.state.initTarget.value + (this.settings.value - this.state.initTarget.value) / 100 *  progress);
-
-            this.settings.onUpdate.call(this, progress);
-        }
-
-        animate() {
-            let self = this;
-            const duration = self.settings.duration * 1000;
-
-            self.setStartTime();
-
-            requestAnimationFrame(function tick(time) {
-                self.state.now = time;
-
-                let timePassed = self.state.now - self.state.startTime;
-
-                if (timePassed > duration) {
-                    timePassed = duration;
-                    cancelAnimationFrame(self.raf)
-                }
-
-                const progressInPercent = (timePassed / duration) * 100;
-                self.onUpdate(progressInPercent);
-
-                if (timePassed < duration) {
-                    self.raf = requestAnimationFrame(tick.bind(this));
-                }
-            })
-        }
+        self.init(target, duration, vars, callbacks);
     }
 
-    $.fn.counter = function () {
-        let $this = this,
-            opt = arguments[0],
-            args = Array.prototype.slice.call(arguments, 1),
-            length = $this.length,
-            i,
-            ret;
-        for (i = 0; i < length; i++) {
-            if (typeof opt == 'object' || typeof opt == 'undefined')
-                $this[i].a = new Counter($this[i], opt);
-            else
-                ret = $this[i].counter[opt].apply($this[i].counter, args);
-            if (typeof ret != 'undefined') return ret;
-        }
-        return $this;
-    };
+    static to(target, duration, vars, callbacks){
+        return new Counter(target, duration, vars, callbacks);
+    }
 
-})(jQuery);
+    init(target, duration, vars, callbacks) {
+        let self = this;
+
+        self.saveInitTarget(target);
+        self.animate(target, duration, vars, callbacks);
+    }
+
+    saveInitTarget(target) {
+        this.state.initTarget = {...target};
+    }
+
+    setStartTime() {
+        this.state.startTime = performance.now();
+    }
+
+    onUpdate(target, progress, vars, callbacks) {
+        for(var propertyName in vars) {
+            const fromValue = this.state.initTarget[propertyName];
+            const toValue = vars[propertyName];
+
+            target[propertyName] = fromValue + (toValue - fromValue) / 100 * progress;
+        }
+
+        callbacks.onUpdate.call(this, progress);
+    }
+
+    animate(target, duration, vars, callbacks) {
+        let self = this;
+        const durationMS = duration * 1000;
+        
+        self.setStartTime();
+
+        requestAnimationFrame(function tick(time) {
+
+            self.state.now = time;
+
+            let timePassed = self.state.now - self.state.startTime;
+
+            if (timePassed > durationMS) {
+                timePassed = durationMS;
+                cancelAnimationFrame(self.raf)
+            }
+
+            const progressInPercent = (timePassed / durationMS) * 100;
+            self.onUpdate(target, progressInPercent, vars, callbacks);
+
+            if (timePassed < durationMS) {
+                self.raf = requestAnimationFrame(tick.bind(this));
+            }
+        })
+    }
+}
+
+export default Counter;

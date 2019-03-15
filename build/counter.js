@@ -78,16 +78,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/*
- Version: 1.0.0
- Author: lemehovskiy
- Website: http://lemehovskiy.github.io
- Repo: https://github.com/lemehovskiy/a
- */
 
 
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -95,103 +90,95 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-(function ($) {
-    var Counter = function () {
-        function Counter(element, options) {
-            _classCallCheck(this, Counter);
+/*
+ Version: 1.0.0
+ Author: lemehovskiy
+ Website: http://lemehovskiy.github.io
+ Repo: https://github.com/lemehovskiy/a
+ */
 
+var Counter = function () {
+    function Counter(target, duration, vars, callbacks) {
+        _classCallCheck(this, Counter);
+
+        var self = this;
+
+        self.state = {
+            isCounting: false,
+            startTime: 0,
+            now: 0
+        };
+        self.init(target, duration, vars, callbacks);
+    }
+
+    _createClass(Counter, [{
+        key: "init",
+        value: function init(target, duration, vars, callbacks) {
             var self = this;
 
-            //extend by function call
-            self.settings = $.extend(true, {
-                target: {},
-                duration: 1
-            }, options);
-
-            self.$element = $(element);
-
-            //extend by data options
-            self.data_options = self.$element.data('counter');
-            self.settings = $.extend(true, self.settings, self.data_options);
-
-            this.state = {
-                isCounting: false,
-                startTime: 0,
-                now: 0
-            };
-            self.init();
+            self.saveInitTarget(target);
+            self.animate(target, duration, vars, callbacks);
         }
-
-        _createClass(Counter, [{
-            key: 'init',
-            value: function init() {
-                var self = this;
-
-                self.saveInitTarget();
-                self.animate();
-            }
-        }, {
-            key: 'saveInitTarget',
-            value: function saveInitTarget() {
-                this.state.initTarget = _extends({}, this.settings.target);
-            }
-        }, {
-            key: 'setStartTime',
-            value: function setStartTime() {
-                this.state.startTime = performance.now();
-            }
-        }, {
-            key: 'onUpdate',
-            value: function onUpdate(progress) {
-                console.log(this.state.initTarget.value + (this.settings.value - this.state.initTarget.value) / 100 * progress);
-
-                this.settings.onUpdate.call(this, progress);
-            }
-        }, {
-            key: 'animate',
-            value: function animate() {
-                var self = this;
-                var duration = self.settings.duration * 1000;
-
-                self.setStartTime();
-
-                requestAnimationFrame(function tick(time) {
-                    self.state.now = time;
-
-                    var timePassed = self.state.now - self.state.startTime;
-
-                    if (timePassed > duration) {
-                        timePassed = duration;
-                        cancelAnimationFrame(self.raf);
-                    }
-
-                    var progressInPercent = timePassed / duration * 100;
-                    self.onUpdate(progressInPercent);
-
-                    if (timePassed < duration) {
-                        self.raf = requestAnimationFrame(tick.bind(this));
-                    }
-                });
-            }
-        }]);
-
-        return Counter;
-    }();
-
-    $.fn.counter = function () {
-        var $this = this,
-            opt = arguments[0],
-            args = Array.prototype.slice.call(arguments, 1),
-            length = $this.length,
-            i = void 0,
-            ret = void 0;
-        for (i = 0; i < length; i++) {
-            if ((typeof opt === 'undefined' ? 'undefined' : _typeof(opt)) == 'object' || typeof opt == 'undefined') $this[i].a = new Counter($this[i], opt);else ret = $this[i].counter[opt].apply($this[i].counter, args);
-            if (typeof ret != 'undefined') return ret;
+    }, {
+        key: "saveInitTarget",
+        value: function saveInitTarget(target) {
+            this.state.initTarget = _extends({}, target);
         }
-        return $this;
-    };
-})(jQuery);
+    }, {
+        key: "setStartTime",
+        value: function setStartTime() {
+            this.state.startTime = performance.now();
+        }
+    }, {
+        key: "onUpdate",
+        value: function onUpdate(target, progress, vars, callbacks) {
+            for (var propertyName in vars) {
+                var fromValue = this.state.initTarget[propertyName];
+                var toValue = vars[propertyName];
+
+                target[propertyName] = fromValue + (toValue - fromValue) / 100 * progress;
+            }
+
+            callbacks.onUpdate.call(this, progress);
+        }
+    }, {
+        key: "animate",
+        value: function animate(target, duration, vars, callbacks) {
+            var self = this;
+            var durationMS = duration * 1000;
+
+            self.setStartTime();
+
+            requestAnimationFrame(function tick(time) {
+
+                self.state.now = time;
+
+                var timePassed = self.state.now - self.state.startTime;
+
+                if (timePassed > durationMS) {
+                    timePassed = durationMS;
+                    cancelAnimationFrame(self.raf);
+                }
+
+                var progressInPercent = timePassed / durationMS * 100;
+                self.onUpdate(target, progressInPercent, vars, callbacks);
+
+                if (timePassed < durationMS) {
+                    self.raf = requestAnimationFrame(tick.bind(this));
+                }
+            });
+        }
+    }], [{
+        key: "to",
+        value: function to(target, duration, vars, callbacks) {
+            return new Counter(target, duration, vars, callbacks);
+        }
+    }]);
+
+    return Counter;
+}();
+
+exports.default = Counter;
 
 /***/ })
 /******/ ]);
