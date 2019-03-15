@@ -1,20 +1,15 @@
 require("./sass/style.scss");
-
 require("jquery");
-
 import Counter from "./../build/counter"
-
 require('./TweenMax');
 
 
 $(document).ready(function () {
-
     let tempObj = {
         value: 25,
         it: 100
     }
-
-
+    
     Counter.to(tempObj, 3,
         {
             // value: 100,
@@ -23,7 +18,8 @@ $(document).ready(function () {
         {
             onUpdate: (progress) => {
                 // console.log(progress);
-                    console.log('first' + tempObj.it);
+                //     console.log('first' + tempObj.it);
+                $('.title').text(tempObj.it.toFixed(2));
             }
         });
 
@@ -37,7 +33,8 @@ $(document).ready(function () {
             {
                 onUpdate: (progress) => {
                     // console.log(progress);
-                    console.log('second' + tempObj.it);
+                    // console.log('second' + tempObj.it);
+                    $('.title').text(tempObj.it.toFixed(2));
                 }
             });
     }, 1000)
@@ -52,8 +49,8 @@ $(document).ready(function () {
             {
                 onUpdate: (progress) => {
                     // console.log(progress);
-                    console.log('third' + tempObj.it);
-                    // $('.title').text(tempObj.it.toFixed(2));
+                    // console.log('third' + tempObj.it);
+                    $('.title').text(tempObj.it.toFixed(2));
                 }
             });
     }, 6000)

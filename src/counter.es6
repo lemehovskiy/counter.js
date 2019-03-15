@@ -5,7 +5,7 @@
  Repo: https://github.com/lemehovskiy/a
  */
 
-import {onUpdate} from './helpers.es6';
+import {onUpdate, addCounterByHash} from './helpers.es6';
 
 class Counter {
     static targetID = 1;
@@ -15,9 +15,9 @@ class Counter {
     static engineInProgress = false;
 
     static addCounter(id, target, duration, vars, callbacks) {
-        Counter.countersByHash = {
-            ...Counter.countersByHash,
-            [id]: {
+        Counter.countersByHash = addCounterByHash(
+            Counter.countersByHash,
+            {
                 id: id,
                 target: target,
                 duration: duration,
@@ -25,8 +25,7 @@ class Counter {
                 callbacks: callbacks,
                 initTarget: {...target},
                 startTime: performance.now()
-            }
-        }
+            })
         Counter.countersById = [...Counter.countersByHash, id]
     }
 
@@ -52,7 +51,6 @@ class Counter {
         delete Counter.countersByHash[id];
     }
 
-
     static registerTarget(target) {
         target._counterID = Counter.targetID++;
     }
@@ -66,11 +64,9 @@ class Counter {
                 Counter.stopEngine();
             }
             else {
-
                 Counter.countersById.forEach((id) => {
                     const counter = Counter.countersByHash[id];
                     const durationMS = counter.duration * 1000;
-
                     let timePassed = time - counter.startTime;
 
                     if (timePassed > durationMS) {

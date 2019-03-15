@@ -10,6 +10,9 @@ export const onUpdate = (initTarget, target, progress, vars, callbacks) => {
     callbacks.onUpdate.call(this, progress);
 }
 
-export const addCounter = (payload) => {
-    
+export const addCounterByHash = (countersByHash, payload) => {
+    return {
+        ...countersByHash,
+        [payload.id]: {...payload}
+    }
 }

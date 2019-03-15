@@ -7074,13 +7074,11 @@ var _counter2 = _interopRequireDefault(_counter);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 __webpack_require__(68);
-
 __webpack_require__(69);
 
 __webpack_require__(113);
 
 $(document).ready(function () {
-
     var tempObj = {
         value: 25,
         it: 100
@@ -7092,7 +7090,8 @@ $(document).ready(function () {
     }, {
         onUpdate: function onUpdate(progress) {
             // console.log(progress);
-            console.log('first' + tempObj.it);
+            //     console.log('first' + tempObj.it);
+            $('.title').text(tempObj.it.toFixed(2));
         }
     });
 
@@ -7103,7 +7102,8 @@ $(document).ready(function () {
         }, {
             onUpdate: function onUpdate(progress) {
                 // console.log(progress);
-                console.log('second' + tempObj.it);
+                // console.log('second' + tempObj.it);
+                $('.title').text(tempObj.it.toFixed(2));
             }
         });
     }, 1000);
@@ -7115,8 +7115,8 @@ $(document).ready(function () {
         }, {
             onUpdate: function onUpdate(progress) {
                 // console.log(progress);
-                console.log('third' + tempObj.it);
-                // $('.title').text(tempObj.it.toFixed(2));
+                // console.log('third' + tempObj.it);
+                $('.title').text(tempObj.it.toFixed(2));
             }
         });
     }, 6000);
@@ -7223,9 +7223,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _helpers = __webpack_require__(1);
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -7233,7 +7233,7 @@ var Counter = function () {
     _createClass(Counter, null, [{
         key: 'addCounter',
         value: function addCounter(id, target, duration, vars, callbacks) {
-            Counter.countersByHash = _extends({}, Counter.countersByHash, _defineProperty({}, id, {
+            Counter.countersByHash = (0, _helpers.addCounterByHash)(Counter.countersByHash, {
                 id: id,
                 target: target,
                 duration: duration,
@@ -7241,7 +7241,7 @@ var Counter = function () {
                 callbacks: callbacks,
                 initTarget: _extends({}, target),
                 startTime: performance.now()
-            }));
+            });
             Counter.countersById = [].concat(_toConsumableArray(Counter.countersByHash), [id]);
         }
     }, {
@@ -7279,11 +7279,9 @@ var Counter = function () {
                 if (Counter.countersById.length === 0) {
                     Counter.stopEngine();
                 } else {
-
                     Counter.countersById.forEach(function (id) {
                         var counter = Counter.countersByHash[id];
                         var durationMS = counter.duration * 1000;
-
                         var timePassed = time - counter.startTime;
 
                         if (timePassed > durationMS) {
@@ -7360,6 +7358,11 @@ exports.default = Counter;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var onUpdate = exports.onUpdate = function onUpdate(initTarget, target, progress, vars, callbacks) {
     // console.log('onUpdate');
     for (var propertyName in vars) {
@@ -7372,7 +7375,9 @@ var onUpdate = exports.onUpdate = function onUpdate(initTarget, target, progress
     callbacks.onUpdate.call(undefined, progress);
 };
 
-var addCounter = exports.addCounter = function addCounter(payload) {};
+var addCounterByHash = exports.addCounterByHash = function addCounterByHash(countersByHash, payload) {
+    return _extends({}, countersByHash, _defineProperty({}, payload.id, _extends({}, payload)));
+};
 
 /***/ })
 /******/ ]);
