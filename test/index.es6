@@ -1,6 +1,6 @@
 require("./sass/style.scss");
 require("jquery");
-import Counter from "./../build/counter"
+import Counter from "./../dist/counter"
 require('./TweenMax');
 
 
