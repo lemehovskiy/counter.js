@@ -4,7 +4,7 @@ export const onUpdate = (initTarget, target, progress, vars, callbacks) => {
         const fromValue = initTarget[propertyName];
         const toValue = vars[propertyName];
 
-        target[propertyName] = fromValue + (toValue - fromValue) / 100 * progress;
+        target[propertyName] = fromValue + (toValue - fromValue) * progress;
     }
 
     callbacks.onUpdate.call(this, progress);

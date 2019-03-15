@@ -95,6 +95,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _helpers = __webpack_require__(1);
 
+var _easing = __webpack_require__(2);
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -156,13 +158,17 @@ var Counter = function () {
                         var durationMS = counter.duration * 1000;
                         var timePassed = time - counter.startTime;
 
-                        if (timePassed > durationMS) {
-                            timePassed = durationMS;
+                        var timeFraction = timePassed / durationMS;
+
+                        if (timeFraction > 1) timeFraction = 1;
+
+                        var progress = counter.vars.easing === 'linear' ? timeFraction : _easing.easings[counter.vars.easing](timeFraction);
+
+                        if (progress > 1) {
                             Counter.deleteCounter(id);
                         }
 
-                        var progressInPercent = timePassed / durationMS * 100;
-                        (0, _helpers.onUpdate)(counter.initTarget, counter.target, progressInPercent, counter.vars, counter.callbacks);
+                        (0, _helpers.onUpdate)(counter.initTarget, counter.target, progress, counter.vars, counter.callbacks);
                     });
 
                     Counter.ref = requestAnimationFrame(tick.bind(this));
@@ -187,7 +193,11 @@ var Counter = function () {
 
         var self = this;
 
-        self.init(target, duration, vars, callbacks);
+        var updatedByDefaultVars = _extends({
+            easing: 'linear'
+        }, vars);
+
+        self.init(target, duration, updatedByDefaultVars, callbacks);
     }
 
     _createClass(Counter, [{
@@ -216,7 +226,7 @@ var Counter = function () {
 Counter.targetID = 1;
 Counter.ref = undefined;
 Counter.countersByHash = {};
-Counter.countersById = {};
+Counter.countersById = [];
 Counter.engineInProgress = false;
 exports.default = Counter;
 
@@ -241,7 +251,7 @@ var onUpdate = exports.onUpdate = function onUpdate(initTarget, target, progress
         var fromValue = initTarget[propertyName];
         var toValue = vars[propertyName];
 
-        target[propertyName] = fromValue + (toValue - fromValue) / 100 * progress;
+        target[propertyName] = fromValue + (toValue - fromValue) * progress;
     }
 
     callbacks.onUpdate.call(undefined, progress);
@@ -249,6 +259,29 @@ var onUpdate = exports.onUpdate = function onUpdate(initTarget, target, progress
 
 var addCounterByHash = exports.addCounterByHash = function addCounterByHash(countersByHash, payload) {
     return _extends({}, countersByHash, _defineProperty({}, payload.id, _extends({}, payload)));
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var easings = exports.easings = {
+    'back': function back(progress) {
+        var x = 1.5;
+        return Math.pow(progress, 2) * ((x + 1) * progress - x);
+    },
+    'circ': function circ(progress) {
+        return 1 - Math.sin(Math.acos(progress));
+    },
+    'quad': function quad(progress) {
+        return Math.pow(progress, 2);
+    }
 };
 
 /***/ })

@@ -6,12 +6,13 @@
  */
 
 import {onUpdate, addCounterByHash} from './helpers.es6';
+import {easings} from './easing.es6';
 
 class Counter {
     static targetID = 1;
     static ref = undefined;
     static countersByHash = {};
-    static countersById = {};
+    static countersById = [];
     static engineInProgress = false;
 
     static addCounter(id, target, duration, vars, callbacks) {
@@ -69,13 +70,17 @@ class Counter {
                     const durationMS = counter.duration * 1000;
                     let timePassed = time - counter.startTime;
 
-                    if (timePassed > durationMS) {
-                        timePassed = durationMS;
+                    let timeFraction = timePassed / durationMS;
+
+                    if (timeFraction > 1) timeFraction = 1;
+
+                    let progress = counter.vars.easing === 'linear' ? timeFraction : easings[counter.vars.easing](timeFraction)
+
+                    if (progress > 1) {
                         Counter.deleteCounter(id)
                     }
 
-                    const progressInPercent = (timePassed / durationMS) * 100;
-                    onUpdate(counter.initTarget, counter.target, progressInPercent, counter.vars, counter.callbacks);
+                    onUpdate(counter.initTarget, counter.target, progress, counter.vars, counter.callbacks);
                 })
 
                 Counter.ref = requestAnimationFrame(tick.bind(this));
@@ -95,7 +100,12 @@ class Counter {
     constructor(target, duration, vars, callbacks) {
         let self = this;
 
-        self.init(target, duration, vars, callbacks);
+        let updatedByDefaultVars = {
+            easing: 'linear',
+            ...vars
+        }
+
+        self.init(target, duration, updatedByDefaultVars, callbacks);
     }
 
     init(target, duration, vars, callbacks) {
