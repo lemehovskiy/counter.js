@@ -3,7 +3,7 @@ a
 
 ### Demo
 
-[https://lemehovskiy.github.io/a/test](https://lemehovskiy.github.io/a/test/)
+[Demo](https://lemehovskiy.github.io/counter.js/test/)
 
 ### Browser support
 
